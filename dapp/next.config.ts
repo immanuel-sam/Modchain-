@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
 };
 
 const withCivicAuth = createCivicAuthPlugin({
-  clientId: process.env.NEXT_PUBLIC_CIVIC_CLIENT_ID || "119d41bc-a42b-40fe-92e1-7d28f89b4ce2"
+  clientId: process.env.NEXT_PUBLIC_CIVIC_CLIENT_ID || "YOUR_CLIENT_ID"
 });
 
 export default withCivicAuth(nextConfig);

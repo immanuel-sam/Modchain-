@@ -56,18 +56,18 @@ export default function ContentSubmissionPage() {
   const [success, setSuccess] = useState<boolean>(false);
   const router = useRouter();
   const userContext = useUser();
-  const [txHash, setTxHash] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<`0x${string}` | null>(null);
   const [txStatus, setTxStatus] = useState<'pending' | 'success' | 'error' | null>(null);
   const { writeContract, isPending } = useWriteContract({
     mutation: {
-      onSuccess: (data) => {
-        if (data && typeof data === 'object' && 'hash' in data) {
-          setTxHash(data.hash);
+      onSuccess: (data: `0x${string}`) => {
+        if (typeof data === 'string') {
+          setTxHash(data);
         }
       },
     },
   });
-  const { data: receipt, isSuccess, isError } = useWaitForTransactionReceipt({ hash: txHash });
+  const { data: receipt, isSuccess, isError } = useWaitForTransactionReceipt({ hash: txHash ?? undefined });
 
   // Ensure wallet is created for each user
   React.useEffect(() => {
@@ -95,16 +95,15 @@ export default function ContentSubmissionPage() {
       const deadlineTimestamp = timePeriod ? Math.floor(Date.now() / 1000) + parseInt(timePeriod) * 3600 : Math.floor(Date.now() / 1000) + 86400;
       const bountyAmount = ethers.parseEther(bounty || "0.01").toString();
       // Call contract directly from user's wallet
-      await writeContract({
+      writeContract({
         address: CONTENT_SUBMISSION_ADDRESS,
         abi: ContentSubmissionABI,
         functionName: 'submitContent',
         args: [contentHash, description, requiredExpertiseHashes, deadlineTimestamp],
-        value: bountyAmount,
+        value: BigInt(bountyAmount),
       });
       setSuccess(true);
       setTimeout(() => router.push("/dashboard"), 1200);
-    } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);

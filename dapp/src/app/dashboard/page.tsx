@@ -110,16 +110,16 @@ export default function DashboardPage() {
   const userContext = useUser();
   const { writeContract: writeVerdict } = useWriteContract({
     mutation: {
-      onSuccess: (data: { hash: React.SetStateAction<string | null>; }) => {
-        if (data && typeof data === 'object' && 'hash' in data) {
-          setVerdictTxHash(data.hash);
+      onSuccess: (data: `0x${string}`) => {
+        if (data) {
+          setVerdictTxHash(data);
         }
       },
     },
   });
-  const [verdictTxHash, setVerdictTxHash] = useState<string | null>(null);
+  const [verdictTxHash, setVerdictTxHash] = useState<`0x${string}` | null>(null);
   const [verdictTxStatus, setVerdictTxStatus] = useState<'pending' | 'success' | 'error' | null>(null);
-  const { data: verdictReceipt, status: verdictStatus } = useWaitForTransactionReceipt({ hash: verdictTxHash });
+  const { data: verdictReceipt, status: verdictStatus } = useWaitForTransactionReceipt({ hash: verdictTxHash ?? undefined });
 
   React.useEffect(() => {
     if (verdictStatus === 'pending') setVerdictTxStatus('pending');
