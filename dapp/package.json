@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@civic/auth": "0.9.0",
-    "@civic/auth-web3": "0.9.0",
-    "@civic/auth-web3/react": "0.9.0",
+    "@civic/auth-web3": "0.6.2",
+    "@tanstack/react-query": "^5.83.0",
+    "ethers": "^6.15.0",
     "next": "15.4.1",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "wagmi": "^2.15.7"
   },
   "devDependencies": {
     "@types/node": "^20.4.2",

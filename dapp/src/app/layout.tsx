@@ -14,7 +14,8 @@ const wagmiConfig = createConfig({
     [mainnet.id]: http(),
     [sepolia.id]: http(),
   },
-  connectors: [], // Civic's embeddedWallet will be used internally
+  // Civic's embeddedWallet will be used internally, so no connectors are specified here
+  connectors: [],
 });
 
 const queryClient = new QueryClient();
@@ -25,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <QueryClientProvider client={queryClient}>
           <WagmiProvider config={wagmiConfig}>
-            <CivicAuthProvider clientId={process.env.NEXT_PUBLIC_CIVIC_CLIENT_ID!} initialChain={sepolia}>
+            <CivicAuthProvider initialChain={sepolia}>
               <RetroNav />
               {children}
             </CivicAuthProvider>
