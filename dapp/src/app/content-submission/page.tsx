@@ -68,8 +68,7 @@ export default function ContentSubmissionPage() {
         requiredExpertiseTags,
         deadlineTimestamp,
         bountyAmount,
-        level,
-        expectedOutcome,
+        
       });
       setSuccess(true);
       setTimeout(() => router.push("/dashboard"), 1200);

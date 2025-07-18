@@ -20,6 +20,7 @@ export default function RetroNav() {
     }}>
       <Link href="/dashboard" style={{ color: "#fffbe6", textDecoration: "none" }}>Dashboard</Link>
       <Link href="/content-submission" style={{ color: "#fffbe6", textDecoration: "none" }}>Submit Content</Link>
+      <Link href="/moderators" style={{ color: "#fffbe6", textDecoration: "none" }}>Moderators</Link>
       <Link href="/profile" style={{ color: "#fffbe6", textDecoration: "none" }}>Profile</Link>
     </nav>
   );

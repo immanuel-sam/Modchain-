@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getContentList, getContentDetails, submitVerdict } from "../../../utils/api";
+import { getContentList, getContentDetails, submitVerdict, getBountyResults } from "../../../utils/api";
 import { useUser } from "@civic/auth/react";
 
 const retroBg: React.CSSProperties = {
@@ -98,6 +98,9 @@ export default function DashboardPage() {
   const [flagLoading, setFlagLoading] = useState<boolean>(false);
   const [flagError, setFlagError] = useState<string | null>(null);
   const [flagSuccess, setFlagSuccess] = useState<boolean>(false);
+  const [bountyWinners, setBountyWinners] = useState<any[]>([]);
+  const [bountyLoading, setBountyLoading] = useState(false);
+  const [bountyError, setBountyError] = useState<string | null>(null);
   const router = useRouter();
   const { user } = useUser();
 
@@ -117,9 +120,19 @@ export default function DashboardPage() {
   const handleOpenModal = async (c: Content) => {
     setSelected(c);
     setModalDetails(null);
+    setBountyWinners([]);
+    setBountyLoading(false);
+    setBountyError(null);
     try {
       const details = await getContentDetails(c.contentHash);
       setModalDetails(details);
+      if (isBountyOver(c.deadline)) {
+        setBountyLoading(true);
+        getBountyResults(c.contentHash)
+          .then(res => setBountyWinners(res.winners || []))
+          .catch(() => setBountyError("Failed to load bounty results"))
+          .finally(() => setBountyLoading(false));
+      }
     } catch {
       setModalDetails(null);
     }
@@ -196,11 +209,30 @@ export default function DashboardPage() {
             {isBountyOver(selected.deadline) && (
               <div style={{ margin: "18px 0", background: "#e6d8c3", padding: 12, borderRadius: 8 }}>
                 <label style={{ fontWeight: "bold" }}>Bounty Results:</label>
-                <div style={{ fontSize: 14, color: "#3a2c1a", marginTop: 6 }}>
-                  {/* TODO: Replace with real winner data */}
-                  <div>Winner: 0xWinnerAddress (You?)</div>
-                  <div>Amount: {selected.bountyAmount} ETH</div>
-                </div>
+                {bountyLoading ? (
+                  <div>Loading...</div>
+                ) : bountyError ? (
+                  <div style={{ color: "red" }}>{bountyError}</div>
+                ) : bountyWinners.length === 0 ? (
+                  <div>No winners found.</div>
+                ) : (
+                  <table style={{ width: "100%", fontSize: 14, marginTop: 6 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: "left", padding: 4 }}>Winner</th>
+                        <th style={{ textAlign: "left", padding: 4 }}>Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bountyWinners.map((w, idx) => (
+                        <tr key={w.txHash}>
+                          <td style={{ padding: 4, fontFamily: "monospace" }}>{w.claimant}</td>
+                          <td style={{ padding: 4 }}>{w.amount}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             )}
             {/* Moderation flag/proof UI */}

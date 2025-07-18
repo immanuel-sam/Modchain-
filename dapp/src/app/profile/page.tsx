@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "@civic/auth/react";
+import { getModeratorProfile } from "../../../utils/api";
 
 const retroCard: React.CSSProperties = {
   background: "#fffbe6",
@@ -18,21 +19,33 @@ const retroCard: React.CSSProperties = {
 
 export default function ProfilePage() {
   const { user } = useUser();
-  // TODO: Fetch wallet address and reputation from backend/smart contract
   // Civic user object does not have walletAddress, so use placeholder for now
   const walletAddress = "0x1234...abcd"; // Placeholder
-  const reputation = 70; // Placeholder
+  const [reputation, setReputation] = useState<number | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      console.log('Civic user object:', user);
+    }
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    // Use walletAddress or user.email as needed (replace with real address logic)
+    getModeratorProfile(walletAddress)
+      .then(res => {
+        setReputation(Number(res.reputation));
+        setHistory(res.history || []);
+      })
+      .catch(() => setError("Failed to load profile"))
+      .finally(() => setLoading(false));
+  }, [user]);
 
   if (!user) {
     return <div style={retroCard}>Please log in to view your profile.</div>;
   }
-
-  // Placeholder reputation history
-  const reputationHistory = [
-    { change: "+10", reason: "Won bounty on 0xABC...123" },
-    { change: "+5", reason: "Participated in moderation" },
-    { change: "-2", reason: "Flagged incorrectly on 0xDEF...456" },
-  ];
 
   return (
     <div style={{ minHeight: "100vh", background: "#f5e9da" }}>
@@ -45,18 +58,26 @@ export default function ProfilePage() {
           <b>Wallet Address:</b> <br />{walletAddress}
         </div>
         <div style={{ marginBottom: 16 }}>
-          <b>Reputation Score:</b> <br />{reputation}
+          <b>Reputation Score:</b> <br />{reputation !== null ? reputation : "-"}
         </div>
         {/* Reputation history */}
         <div style={{ marginTop: 32, textAlign: "left" }}>
           <b>Reputation History:</b>
-          <ul style={{ marginTop: 10, paddingLeft: 20 }}>
-            {reputationHistory.map((item, idx) => (
-              <li key={idx} style={{ marginBottom: 6 }}>
-                <span style={{ color: item.change.startsWith("-") ? "red" : "green" }}>{item.change}</span> {item.reason}
-              </li>
-            ))}
-          </ul>
+          {loading ? (
+            <div>Loading...</div>
+          ) : error ? (
+            <div style={{ color: "red" }}>{error}</div>
+          ) : history.length === 0 ? (
+            <div>No reputation history found.</div>
+          ) : (
+            <ul style={{ marginTop: 10, paddingLeft: 20 }}>
+              {history.map((item, idx) => (
+                <li key={item.txHash} style={{ marginBottom: 6 }}>
+                  <span style={{ color: "green" }}>New: {item.newReputation}</span> (Block: {item.blockNumber})
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

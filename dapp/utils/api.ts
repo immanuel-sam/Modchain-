@@ -71,4 +71,19 @@ export async function saveOnboarding(data: { email: string; profession?: string;
     body: JSON.stringify(data),
   });
   return res.json();
+}
+
+export async function getModerators() {
+  const res = await fetch(`${BACKEND_URL}/api/moderators`);
+  return res.json();
+}
+
+export async function getBountyResults(contentHash: string) {
+  const res = await fetch(`${BACKEND_URL}/api/bounty/${contentHash}/results`);
+  return res.json();
+}
+
+export async function getModeratorProfile(address: string) {
+  const res = await fetch(`${BACKEND_URL}/api/moderator/${address}`);
+  return res.json();
 } 

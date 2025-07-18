@@ -180,6 +180,61 @@ app.get('/api/content/:hash', async (req, res) => {
   }
 });
 
+// List all moderators (top N)
+app.get('/api/moderators', async (req, res) => {
+  try {
+    const N = 100;
+    const addresses = await ModeratorRegistry.getTopModerators(N);
+    const moderators = await Promise.all(addresses.map(async (address) => {
+      const reputation = await ModeratorRegistry.getReputationScore(address);
+      return {
+        address,
+        reputation: reputation.toString(),
+      };
+    }));
+    res.json(moderators);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Get bounty results/winners for a content hash
+app.get('/api/bounty/:hash/results', async (req, res) => {
+  try {
+    const hash = req.params.hash;
+    // For demo: fetch BountyClaimed events for this contentHash
+    const filter = ContentBounty.filters.BountyClaimed(hash);
+    const events = await ContentBounty.queryFilter(filter);
+    const winners = events.map(ev => ({
+      claimant: ev.args.claimant,
+      amount: ev.args.amount.toString(),
+      txHash: ev.transactionHash
+    }));
+    res.json({ winners });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Get moderator profile and reputation history
+app.get('/api/moderator/:address', async (req, res) => {
+  try {
+    const address = req.params.address;
+    const reputation = await ModeratorRegistry.getReputationScore(address);
+    // Fetch reputation history from ReputationUpdated events
+    const filter = ModeratorRegistry.filters.ReputationUpdated(address);
+    const events = await ModeratorRegistry.queryFilter(filter);
+    const history = events.map(ev => ({
+      newReputation: ev.args.newReputation.toString(),
+      blockNumber: ev.blockNumber,
+      txHash: ev.transactionHash
+    }));
+    res.json({ address, reputation: reputation.toString(), history });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Save onboarding data (for demo, store in local file)
 app.post('/api/onboarding', async (req, res) => {
   try {
