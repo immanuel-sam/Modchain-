@@ -3,6 +3,12 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { submitContent } from "../../../utils/api";
 import { ethers } from "ethers";
+import { useUser } from "@civic/auth-web3/react";
+import { userHasWallet } from "@civic/auth-web3";
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import ContentSubmissionABI from '../../abi/ContentSubmission.json';
+
+const CONTENT_SUBMISSION_ADDRESS = "0xeB9a46451E8F70C35696D22a16029c08028555E7";
 
 const retroBg: React.CSSProperties = {
   minHeight: "100vh",
@@ -49,26 +55,52 @@ export default function ContentSubmissionPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const router = useRouter();
+  const userContext = useUser();
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [txStatus, setTxStatus] = useState<'pending' | 'success' | 'error' | null>(null);
+  const { writeContract, isPending } = useWriteContract({
+    mutation: {
+      onSuccess: (data) => {
+        if (data && typeof data === 'object' && 'hash' in data) {
+          setTxHash(data.hash);
+        }
+      },
+    },
+  });
+  const { data: receipt, isSuccess, isError } = useWaitForTransactionReceipt({ hash: txHash });
+
+  // Ensure wallet is created for each user
+  React.useEffect(() => {
+    if (userContext.user && !userHasWallet(userContext)) {
+      userContext.createWallet();
+    }
+  }, [userContext]);
+
+  React.useEffect(() => {
+    if (isPending) setTxStatus('pending');
+    if (isSuccess) setTxStatus('success');
+    if (isError) setTxStatus('error');
+  }, [isPending, isSuccess, isError]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setTxHash(null);
+    setTxStatus(null);
     try {
-      // Hash content for on-chain uniqueness
       const contentHash = ethers.id(content);
-      // For demo: fixed expertise tag and deadline (1 day from now)
       const requiredExpertiseTags = [contextTag || "Health"];
+      const requiredExpertiseHashes = requiredExpertiseTags.map(tag => ethers.id(tag));
       const deadlineTimestamp = timePeriod ? Math.floor(Date.now() / 1000) + parseInt(timePeriod) * 3600 : Math.floor(Date.now() / 1000) + 86400;
-      // Convert bounty to wei
       const bountyAmount = ethers.parseEther(bounty || "0.01").toString();
-      await submitContent({
-        contentHash,
-        taskDescription: description,
-        requiredExpertiseTags,
-        deadlineTimestamp,
-        bountyAmount,
-        
+      // Call contract directly from user's wallet
+      await writeContract({
+        address: CONTENT_SUBMISSION_ADDRESS,
+        abi: ContentSubmissionABI,
+        functionName: 'submitContent',
+        args: [contentHash, description, requiredExpertiseHashes, deadlineTimestamp],
+        value: bountyAmount,
       });
       setSuccess(true);
       setTimeout(() => router.push("/dashboard"), 1200);
@@ -83,6 +115,12 @@ export default function ContentSubmissionPage() {
     <div style={retroBg}>
       <div style={cardStyle}>
         <h1 style={{ marginBottom: 18 }}>Submit Content</h1>
+        <div style={{ marginBottom: 18, fontSize: 14, color: '#7a6c53' }}>
+          <b>Your Wallet Address:</b> {userHasWallet(userContext) ? userContext.ethereum?.address : 'Creating wallet...'}
+        </div>
+        {txStatus === 'pending' && <div style={{ color: 'orange' }}>Transaction pending...</div>}
+        {txStatus === 'success' && <div style={{ color: 'green' }}>Transaction confirmed!</div>}
+        {txStatus === 'error' && <div style={{ color: 'red' }}>Transaction failed!</div>}
         {success ? (
           <div style={{ color: "#3a2c1a", fontSize: 18 }}>
             Content submitted!<br />Redirecting to dashboard...
@@ -248,7 +286,7 @@ export default function ContentSubmissionPage() {
               {loading ? "Submitting..." : "Submit & Pay Bounty"}
             </button>
             {error && <div style={{ color: "red", marginTop: 12 }}>{error}</div>}
-          </form>
+      </form>
         )}
       </div>
     </div>

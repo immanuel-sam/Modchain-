@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { getModerators } from "../../utils/api";
+import { getModerators } from "../../../utils/api";
 
 const retroCard: React.CSSProperties = {
   background: "#fffbe6",

@@ -1,0 +1,249 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_contentBountyAddress",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "contentHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "ContentExpired",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "contentHash",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "submitter",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "bountyAmount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "deadline",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "taskDescription",
+				"type": "string"
+			}
+		],
+		"name": "ContentSubmitted",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_contentHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "expireContent",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "contentHash",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "enum ContentSubmission.SubmissionStatus",
+				"name": "newStatus",
+				"type": "uint8"
+			}
+		],
+		"name": "SubmissionStatusUpdated",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_contentHash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "string",
+				"name": "_taskDescription",
+				"type": "string"
+			},
+			{
+				"internalType": "bytes32[]",
+				"name": "_requiredExpertiseHashes",
+				"type": "bytes32[]"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_deadlineTimestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "submitContent",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_contentHash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "enum ContentSubmission.SubmissionStatus",
+				"name": "_newStatus",
+				"type": "uint8"
+			}
+		],
+		"name": "updateSubmissionStatus",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "contentBountyContract",
+		"outputs": [
+			{
+				"internalType": "contract IContentBounty",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "enum ContentSubmission.SubmissionStatus",
+				"name": "status",
+				"type": "uint8"
+			}
+		],
+		"name": "getSubmissionsByStatus",
+		"outputs": [
+			{
+				"internalType": "bytes32[]",
+				"name": "",
+				"type": "bytes32[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "submitter",
+				"type": "address"
+			}
+		],
+		"name": "getSubmissionsBySubmitter",
+		"outputs": [
+			{
+				"internalType": "bytes32[]",
+				"name": "",
+				"type": "bytes32[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "submissions",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "submitter",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "taskDescription",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "submissionTimestamp",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "deadline",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "bountyAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "enum ContentSubmission.SubmissionStatus",
+				"name": "status",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]

@@ -2,7 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getContentList, getContentDetails, submitVerdict, getBountyResults } from "../../../utils/api";
-import { useUser } from "@civic/auth/react";
+import { useUser } from "@civic/auth-web3/react";
+import { userHasWallet } from "@civic/auth-web3";
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import VerdictStorageABI from '../../abi/VerdictStorage.json';
 
 const retroBg: React.CSSProperties = {
   minHeight: "100vh",
@@ -84,6 +87,8 @@ const flagOptions = [
   { value: "other", label: "Other" },
 ];
 
+const VERDICT_STORAGE_ADDRESS = "0xAD0C156522Af07EEf26d9dfcab24ead5Cf60DB94";
+
 export default function DashboardPage() {
   const [contents, setContents] = useState<Content[]>([]);
   const [selected, setSelected] = useState<Content | null>(null);
@@ -102,7 +107,32 @@ export default function DashboardPage() {
   const [bountyLoading, setBountyLoading] = useState(false);
   const [bountyError, setBountyError] = useState<string | null>(null);
   const router = useRouter();
-  const { user } = useUser();
+  const userContext = useUser();
+  const { writeContract: writeVerdict } = useWriteContract({
+    mutation: {
+      onSuccess: (data: { hash: React.SetStateAction<string | null>; }) => {
+        if (data && typeof data === 'object' && 'hash' in data) {
+          setVerdictTxHash(data.hash);
+        }
+      },
+    },
+  });
+  const [verdictTxHash, setVerdictTxHash] = useState<string | null>(null);
+  const [verdictTxStatus, setVerdictTxStatus] = useState<'pending' | 'success' | 'error' | null>(null);
+  const { data: verdictReceipt, status: verdictStatus } = useWaitForTransactionReceipt({ hash: verdictTxHash });
+
+  React.useEffect(() => {
+    if (verdictStatus === 'pending') setVerdictTxStatus('pending');
+    if (verdictStatus === 'success') setVerdictTxStatus('success');
+    if (verdictStatus === 'error') setVerdictTxStatus('error');
+  }, [verdictStatus]);
+
+  // Ensure wallet is created for each user
+  React.useEffect(() => {
+    if (userContext.user && !userHasWallet(userContext)) {
+      userContext.createWallet();
+    }
+  }, [userContext]);
 
   useEffect(() => {
     setLoading(true);
@@ -142,8 +172,16 @@ export default function DashboardPage() {
     setVoteLoading(true);
     setVoteError(null);
     setVoteStatus((prev) => ({ ...prev, [id]: type }));
+    setVerdictTxHash(null);
+    setVerdictTxStatus(null);
     try {
-      await submitVerdict(id, type === "up", type);
+      // For demo, justification is the vote type
+      await writeVerdict({
+        address: VERDICT_STORAGE_ADDRESS,
+        abi: VerdictStorageABI,
+        functionName: 'recordVerdict',
+        args: [id, type === "up", type],
+      });
     } catch (e) {
       setVoteError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -178,6 +216,9 @@ export default function DashboardPage() {
     <div style={retroBg}>
       <div style={cardStyle}>
         <h1 style={{ marginBottom: 12 }}>Moderate Content</h1>
+        <div style={{ marginBottom: 18, fontSize: 14, color: '#7a6c53' }}>
+          <b>Your Wallet Address:</b> {userHasWallet(userContext) ? userContext.ethereum?.address : 'Creating wallet...'}
+        </div>
         {loading ? (
           <div>Loading...</div>
         ) : error ? (
@@ -233,7 +274,7 @@ export default function DashboardPage() {
                     </tbody>
                   </table>
                 )}
-              </div>
+      </div>
             )}
             {/* Moderation flag/proof UI */}
             <div style={{ margin: "18px 0" }}>
@@ -350,6 +391,9 @@ export default function DashboardPage() {
                 Thank you for voting!
               </div>
             )}
+            {verdictTxStatus === 'pending' && <div style={{ color: 'orange' }}>Vote transaction pending...</div>}
+            {verdictTxStatus === 'success' && <div style={{ color: 'green' }}>Vote confirmed!</div>}
+            {verdictTxStatus === 'error' && <div style={{ color: 'red' }}>Vote failed!</div>}
           </div>
         </div>
       )}

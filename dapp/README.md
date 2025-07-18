@@ -21,8 +21,8 @@
      NEXT_PUBLIC_CIVIC_CLIENT_ID=your-client-id-here
      ```
 3. Run the app:
-   ```bash
-   npm run dev
+```bash
+npm run dev
    ```
 
 ## Workflow

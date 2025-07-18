@@ -135,7 +135,7 @@ export default function OnboardingPage() {
               {ans}
             </button>
           ))}
-        </div>
+      </div>
       )}
     </div>
   );
