@@ -1,0 +1,20 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_contentHash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "address payable",
+				"name": "_claimant",
+				"type": "address"
+			}
+		],
+		"name": "claimBounty",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]

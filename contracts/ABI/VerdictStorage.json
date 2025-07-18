@@ -1,0 +1,218 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_contentHash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bool",
+				"name": "_isAccurate",
+				"type": "bool"
+			},
+			{
+				"internalType": "string",
+				"name": "_justification",
+				"type": "string"
+			}
+		],
+		"name": "recordVerdict",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_trustedCaller",
+				"type": "address"
+			}
+		],
+		"name": "setTrustedCaller",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "contentHash",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "moderator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "isAccurate",
+				"type": "bool"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "justification",
+				"type": "string"
+			}
+		],
+		"name": "VerdictRecorded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "moderator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32[]",
+				"name": "contentHashes",
+				"type": "bytes32[]"
+			}
+		],
+		"name": "VerdictsByModerator",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "contentVerdicts",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "moderator",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "isAccurate",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "justification",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_contentHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "getVerdicts",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "moderator",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "isAccurate",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "justification",
+						"type": "string"
+					}
+				],
+				"internalType": "struct VerdictStorage.Verdict[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "moderator",
+				"type": "address"
+			}
+		],
+		"name": "getVerdictsByModerator",
+		"outputs": [
+			{
+				"internalType": "bytes32[]",
+				"name": "",
+				"type": "bytes32[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "trustedCaller",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
